@@ -13,19 +13,40 @@ notElem(X, [Y|YS]):-
     X \= Y,
     notElem(X, YS).
 
+allDistinct([]).
+allDistinct([X|XS]):-
+    notElem(X, XS),
+    allDistinct(XS).
+
 validCoord((X,Y)):-
     X<6, X>=0, Y<6, Y>=0.
 
 validCoords([]).
 validCoords([X|XS]):- validCoord(X), validCoords(XS).
 
-initialBoard(RobotCoord, TargetCoord, BlockingBoxes):-
-    RobotCoord \= TargetCoord,
-    notElem(RobotCoord, BlockingBoxes),
-    notElem(TargetCoord, BlockingBoxes),
-    validCoord(RobotCoord),
-    validCoord(TargetCoord),
-    validCoords(BlockingBoxes).
+assertBoxes([]).
+assertBoxes([(Row, Col)|XS]):-
+    assertz(caja_bloqueo(Row, Col)),
+    assertBoxes(XS).
+
+initialBoard((RobotRow, RobotCol), (TargetRow, TargetCol), BlockingBoxes):-
+    (RobotRow, RobotCol) \= (TargetRow, TargetCol),
+
+    notElem((RobotRow, RobotCol), BlockingBoxes),
+    notElem((TargetRow, TargetCol), BlockingBoxes),
+    allDistinct(BlockingBoxes),
+
+    validCoord((RobotRow, RobotCol)),
+    validCoord((TargetRow, TargetCol)),
+    validCoords(BlockingBoxes),
+
+    retractall(robot(_,_)),
+    retractall(caja_objetivo(_, _)),
+    retractall(caja_bloqueo(_, _)),
+
+    assertz(robot(RobotRow, RobotCol)),
+    assertz(caja_objetivo(TargetRow, TargetCol)),
+    assertBoxes(BlockingBoxes).
 
 % caso moverse sin toparse con nada
 isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move):-
