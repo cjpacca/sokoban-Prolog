@@ -3,6 +3,30 @@ moves('d', 1, 0).
 moves('l', 0, -1).
 moves('r', 0, 1).
 
+
+:- dynamic robot/2.
+:- dynamic caja_objetivo/2.
+:- dynamic caja_bloqueo/2.
+
+notElem(_, []).
+notElem(X, [Y|YS]):-
+    X \= Y,
+    notElem(X, YS).
+
+validCoord((X,Y)):-
+    X<6, X>=0, Y<6, Y>=0.
+
+validCoords([]).
+validCoords([X|XS]):- validCoord(X), validCoords(XS).
+
+initialBoard(RobotCoord, TargetCoord, BlockingBoxes):-
+    RobotCoord \= TargetCoord,
+    notElem(RobotCoord, BlockingBoxes),
+    notElem(TargetCoord, BlockingBoxes),
+    validCoord(RobotCoord),
+    validCoord(TargetCoord),
+    validCoords(BlockingBoxes).
+
 % caso moverse sin toparse con nada
 isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move):-
     moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol,
@@ -11,18 +35,18 @@ isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move):-
     \+ member((NuevaX, NuevaY), CajasBloqueo).
 
 % caso mover caja objetivo
-isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move):-    
+isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move):-
     moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol,
     NuevaX=:=ObjFila, NuevaY=:=ObjCol, % verificar que caigo en la caja objetivo
-    NuevaCajaX is ObjFila + X, NuevaCajaY is ObjCol + Y, 
+    NuevaCajaX is ObjFila + X, NuevaCajaY is ObjCol + Y,
     NuevaCajaX>=0, NuevaCajaX<6, NuevaCajaY>=0, NuevaCajaY<6,
     \+ member((NuevaCajaX, NuevaCajaY), CajasBloqueo).
 
 %caso mover caja bloqueada
-isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move):-   
-    moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol, 
-    member((NuevaX, NuevaY), CajasBloqueo),   
-    NuevaCajaX is NuevaX + X, NuevaCajaY is NuevaY + Y, 
+isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move):-
+    moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol,
+    member((NuevaX, NuevaY), CajasBloqueo),
+    NuevaCajaX is NuevaX + X, NuevaCajaY is NuevaY + Y,
     NuevaCajaX>=0, NuevaCajaX<6, NuevaCajaY>=0, NuevaCajaY<6,
     (NuevaCajaX, NuevaCajaY) \= (ObjFila, ObjCol),
     \+ member((NuevaCajaX, NuevaCajaY), CajasBloqueo).
@@ -45,7 +69,6 @@ moveRobot(state((RFila, RCol), CoordCaja, CajasBloqueo), Move, state((NuevaX, Nu
     isValidMove(state((RFila, RCol), CoordCaja, CajasBloqueo), Move),
     moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol,
     member((NuevaX, NuevaY), CajasBloqueo), % verificar que caigo en la caja bloqueo
-    NuevaCajaX is NuevaX + X, NuevaCajaY is NuevaY + Y, 
+    NuevaCajaX is NuevaX + X, NuevaCajaY is NuevaY + Y,
     select((NuevaX, NuevaY), CajasBloqueo, SinCajaVieja),
     NuevaCajasBloqueos = [(NuevaCajaX, NuevaCajaY)|SinCajaVieja].
-    
