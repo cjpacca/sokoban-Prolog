@@ -3,7 +3,6 @@ moves('d', 1, 0).
 moves('l', 0, -1).
 moves('r', 0, 1).
 
-
 :- dynamic robot/2.
 :- dynamic caja_objetivo/2.
 :- dynamic caja_bloqueo/2.
@@ -93,3 +92,47 @@ moveRobot(state((RFila, RCol), CoordCaja, CajasBloqueo), Move, state((NuevaX, Nu
     NuevaCajaX is NuevaX + X, NuevaCajaY is NuevaY + Y,
     select((NuevaX, NuevaY), CajasBloqueo, SinCajaVieja),
     NuevaCajasBloqueos = [(NuevaCajaX, NuevaCajaY)|SinCajaVieja].
+
+validMoves(_,[],[]).
+validMoves(State, [Move|RestMoves], [Move|ValidMoves]):-
+    isValidMove(State, Move),
+    !,
+    validMoves(State, RestMoves, ValidMoves).
+validMoves(State, [_|RestMoves], ValidMoves):-
+    validMoves(State, RestMoves, ValidMoves).
+
+appendMoves([],_,[]).
+appendMoves([Move|RestMoves], List, [[Move|List]|Rest]):-appendMoves(RestMoves, List, Rest).
+
+applyMoves(_, _, [], []).
+
+applyMoves(CurrentState, Visited, [[CurrentMove|RestMoves]|Rest], [(NextState, [CurrentMove|RestMoves])|RestNodes]):-
+    moveRobot(CurrentState, CurrentMove, state(RobotCoord, TargetCoord, RawBoxes)),
+    sort(RawBoxes, SortedBoxes),
+    NextState = state(RobotCoord, TargetCoord, SortedBoxes),
+    notElem(NextState, Visited),
+    !,
+    applyMoves(CurrentState, Visited, Rest, RestNodes).
+
+applyMoves(CurrentState, Visited, [_|Rest], RestNodes):-
+    applyMoves(CurrentState, Visited, Rest, RestNodes).
+
+concatVisited(Visited, [], Visited).
+concatVisited(Visited, [(NewState, _)|RestNodes], FinalVisited):-
+    concatVisited([NewState|Visited], RestNodes, FinalVisited).
+
+solveWarehouse(state(Robot, Target, Boxes), Solution):-
+    initialBoard(Robot, Target, Boxes),
+    solveWarehouseBFS([(state(Robot, Target, Boxes), [])], [state(Robot, Target, Boxes)], Solution).
+
+solveWarehouseBFS([(state(_, (5,5), _), FinalMoves)|_], _, Solution):-
+    !,
+    reverse(FinalMoves, Solution).
+
+solveWarehouseBFS([(CurrentState, Moves)|RestStates], Visited, Solution):-
+    validMoves(CurrentState, ['d', 'r', 'u', 'l'], ValidMoves),
+    appendMoves(ValidMoves, Moves, AppendedMoves),
+    applyMoves(CurrentState, Visited, AppendedMoves, AppliedNodes),
+    concatVisited(Visited, AppliedNodes, NewVisited),
+    append(RestStates, AppliedNodes, NewNodes),
+    solveWarehouseBFS(NewNodes, NewVisited, Solution).
