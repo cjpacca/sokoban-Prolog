@@ -76,7 +76,6 @@ isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move):-
 
 % moverse sin empujar cajas
 moveRobot(state((RFila, RCol), CoordCaja, CajasBloqueo), Move, state((NuevaX, NuevaY), CoordCaja, CajasBloqueo)):-
-    validCoord(RFila, RCol),
     isValidMove(state((RFila, RCol), CoordCaja, CajasBloqueo), Move),
     moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol,
     (NuevaX, NuevaY) \= CoordCaja,
@@ -84,14 +83,12 @@ moveRobot(state((RFila, RCol), CoordCaja, CajasBloqueo), Move, state((NuevaX, Nu
 
 % moverse empujando caja objetivo
 moveRobot(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move, state((NuevaX, NuevaY), (NuevaCajaX, NuevaCajaY), CajasBloqueo)):-
-    validCoord(RFila, RCol),
     isValidMove(state((RFila, RCol), (ObjFila, ObjCol), CajasBloqueo), Move),
     moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol,
     NuevaX=:=ObjFila, NuevaY=:=ObjCol, % verificar que caigo en la caja objetivo
     NuevaCajaX is ObjFila + X, NuevaCajaY is ObjCol + Y.
 
 moveRobot(state((RFila, RCol), CoordCaja, CajasBloqueo), Move, state((NuevaX, NuevaY), CoordCaja, NuevaCajasBloqueos)):-
-    validCoord(RFila, RCol),
     isValidMove(state((RFila, RCol), CoordCaja, CajasBloqueo), Move),
     moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol,
     member((NuevaX, NuevaY), CajasBloqueo), % verificar que caigo en la caja bloqueo
