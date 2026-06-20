@@ -38,4 +38,5 @@ Por cada iteración de nodo `(estado, [movimientos])` se realizan distintas comp
 * Se comprueba que el estado obtenido al aplicar el movimiento no se encuentre en la lista de visitados.
 * Se hace append del nodo `(nuevo estado, [ultimo movimiento | movimientos])` al final de la cola para mantener la estrategia de búsqueda en anchura.
 * Se realiza la llamada recursiva a nuestro predicado BFS.
-* **Generación de la ruta:** Por eficiencia, el historial de movimientos de cada nodo se construye agregando los nuevos pasos al inicio de la lista. Al encontrar la meta, se utiliza el predicado nativo `reverse/2` para entregar la solución final en el orden cronológico correcto.
+
+* **Nota:** Por eficiencia, el historial de movimientos de cada nodo se construye agregando los nuevos pasos al inicio de la lista. Al encontrar la meta, se utiliza el predicado nativo `reverse/2` para entregar la solución final en el orden cronológico correcto.
