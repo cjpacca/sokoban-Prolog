@@ -93,7 +93,7 @@ moveRobot(state((RFila, RCol), CoordCaja, CajasBloqueo), Move, state((NuevaX, Nu
     moves(Move, X, Y), NuevaX is X + RFila, NuevaY is Y + RCol,
     member((NuevaX, NuevaY), CajasBloqueo), % verificar que caigo en la caja bloqueo
     NuevaCajaX is NuevaX + X, NuevaCajaY is NuevaY + Y,
-    select((NuevaX, NuevaY), CajasBloqueo, SinCajaVieja), 
+    select((NuevaX, NuevaY), CajasBloqueo, SinCajaVieja),
     NuevaCajasBloqueos = [(NuevaCajaX, NuevaCajaY)|SinCajaVieja], !.
 
 validMoves(_,[],[]).
@@ -126,7 +126,8 @@ concatVisited(Visited, [(NewState, _)|RestNodes], FinalVisited):-
 
 solveWarehouse(state(Robot, Target, Boxes), Solution):-
     initialBoard(Robot, Target, Boxes),
-    solveWarehouseBFS([(state(Robot, Target, Boxes), [])], [state(Robot, Target, Boxes)], Solution).
+    solveWarehouseBFS([(state(Robot, Target, Boxes), [])], [state(Robot, Target, Boxes)], Solution),
+    !.
 
 solveWarehouseBFS([(state(_, (5,5), _), FinalMoves)|_], _, Solution):-
     !,
